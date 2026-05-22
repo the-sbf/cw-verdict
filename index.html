@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Wire — The Verdict | Grade 11 History</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Source+Sans+3:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root{
+  --bg:#1A1610;--card:#242018;--border:#3A3428;--border2:#504838;
+  --dim:#8A7C68;--mid:#A89878;--light:#C8B898;--bright:#E0D0B0;--white:#F8F0E0;
+  --red:#D85040;--red-bg:rgba(216,80,64,.08);
+  --green:#48B868;--green-bg:rgba(72,184,104,.08);
+  --blue:#5088D0;--blue-bg:rgba(80,136,208,.08);
+  --amber:#D8A830;--amber-bg:rgba(216,168,48,.1);
+  --acc:#D8A830;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{min-height:100vh;background:var(--bg);color:var(--light);font-family:'Source Sans 3',sans-serif;line-height:1.7;overflow-x:hidden;}
+.c{max-width:640px;margin:0 auto;padding:1rem;}
+
+/* HUD */
+.hud{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(26,22,16,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:.5rem 1rem;}
+.hud-inner{max-width:640px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
+.hud-rank{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--acc);}
+.hud-xp-wrap{width:100px;height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-left:.6rem;}
+.hud-xp-bar{height:100%;background:var(--acc);border-radius:2px;transition:width .5s ease;}
+.hud-right{display:flex;align-items:center;gap:.8rem;}
+.hud-streak{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--dim);}.hud-streak.hot{color:var(--amber);}.hud-streak.fire{color:var(--red);}
+.hud-xp{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--dim);}
+.xp-pop{position:fixed;top:40%;left:50%;transform:translate(-50%,0);font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:600;color:var(--green);pointer-events:none;z-index:200;animation:xpUp 1s ease-out forwards;}
+@keyframes xpUp{0%{opacity:1;transform:translate(-50%,0) scale(.8);}60%{opacity:1;transform:translate(-50%,-30px) scale(1.1);}100%{opacity:0;transform:translate(-50%,-50px) scale(.9);}}
+.lvl-up{position:fixed;inset:0;background:rgba(26,22,16,.95);display:flex;align-items:center;justify-content:center;z-index:300;animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+.prog{display:flex;gap:.25rem;margin-bottom:1rem;padding-top:2rem;}
+.prog-dot{flex:1;height:3px;background:var(--border);border-radius:2px;}
+.prog-dot.done{background:var(--green);}.prog-dot.active{background:var(--acc);}.prog-dot.up{background:var(--border);}
+.sec-label{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);margin-bottom:.6rem;}
+
+/* Card */
+.card{background:var(--card);border:1px solid var(--border);padding:1.3rem 1.4rem;margin-bottom:1rem;}
+.card p{font-size:1.1rem;line-height:1.8;color:var(--light);}.card p+p{margin-top:.7rem;}
+.card strong{color:var(--white);font-weight:600;}
+
+/* Case card — for prosecution/defence/jury */
+.case-card{background:var(--card);border:1px solid var(--border);padding:1.3rem 1.4rem;margin-bottom:1rem;position:relative;overflow:hidden;}
+.case-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;}
+.case-card.orthodox::before{background:var(--blue);}
+.case-card.revisionist::before{background:var(--red);}
+.case-card.postrev::before{background:var(--acc);}
+.case-label{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;margin-bottom:.5rem;}
+.case-card.orthodox .case-label{color:var(--blue);}
+.case-card.revisionist .case-label{color:var(--red);}
+.case-card.postrev .case-label{color:var(--acc);}
+.case-title{font-family:'DM Serif Display',Georgia,serif;font-size:1.2rem;color:var(--white);margin-bottom:.6rem;}
+.case-card p{font-size:1rem;line-height:1.8;color:var(--light);margin-bottom:.4rem;}
+.case-evidence{margin-top:.6rem;}
+.case-ev{background:var(--bg);border:1px solid var(--border);padding:.7rem .9rem;margin-bottom:.35rem;font-size:.95rem;line-height:1.5;color:var(--light);padding-left:1.8rem;position:relative;}
+.case-ev::before{content:'→';position:absolute;left:.7rem;color:var(--dim);}
+
+/* Rating */
+.rate-row{display:flex;align-items:center;gap:.4rem;margin-top:.8rem;}
+.rate-label{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);margin-right:.3rem;}
+.rate-btn{width:36px;height:36px;border:1px solid var(--border);background:var(--bg);color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:.8rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;}
+.rate-btn:hover{border-color:var(--acc);color:var(--acc);}
+.rate-btn.active{background:var(--amber-bg);border-color:var(--acc);color:var(--acc);font-weight:600;}
+
+/* Verdict */
+.verdict-opt{display:block;width:100%;text-align:left;background:var(--bg);border:2px solid var(--border);color:var(--light);padding:1rem 1.2rem;margin-bottom:.5rem;cursor:pointer;transition:all .2s;position:relative;}
+.verdict-opt:hover{border-color:var(--acc);color:var(--white);}
+.verdict-opt.sel{border-color:var(--acc);background:var(--amber-bg);color:var(--white);}
+.verdict-opt-label{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;margin-bottom:.2rem;}
+.verdict-opt.orthodox .verdict-opt-label{color:var(--blue);}
+.verdict-opt.revisionist .verdict-opt-label{color:var(--red);}
+.verdict-opt.postrev .verdict-opt-label{color:var(--acc);}
+.verdict-opt-text{font-size:1rem;line-height:1.5;}
+
+/* Sort */
+.sort-item{background:var(--card);border:1px solid var(--border);padding:.7rem .9rem;margin-bottom:.4rem;display:flex;align-items:center;gap:.6rem;cursor:grab;user-select:none;transition:all .2s;}
+.sort-item:active{cursor:grabbing;background:var(--border);border-color:var(--acc);}
+.sort-handle{font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--dim);flex-shrink:0;}
+.sort-text{font-size:.95rem;color:var(--light);flex:1;line-height:1.4;}
+.sort-arrows{display:flex;flex-direction:column;gap:2px;margin-left:auto;flex-shrink:0;}
+.sort-arr{background:var(--border);border:none;color:var(--dim);font-size:.7rem;padding:3px 10px;cursor:pointer;line-height:1;}
+.sort-arr:hover{background:var(--amber-bg);color:var(--acc);}
+
+/* MCQ */
+.mcq-badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;padding:.2rem .5rem;margin-bottom:.6rem;background:var(--red-bg);color:var(--red);}
+.mcq-q{font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem;color:var(--white);line-height:1.5;margin-bottom:.8rem;}
+.mcq-timer{display:flex;align-items:center;gap:.5rem;margin-bottom:.8rem;}
+.mcq-timer-bg{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.mcq-timer-bar{height:100%;border-radius:3px;transition:width .25s linear;}
+.mcq-timer-bar.ok{background:var(--green);}.mcq-timer-bar.warn{background:var(--amber);}.mcq-timer-bar.crit{background:var(--red);animation:tfl .4s ease infinite;}
+@keyframes tfl{50%{opacity:.4;}}
+.mcq-timer-num{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--mid);min-width:2rem;text-align:right;}
+.mcq-opt{display:block;width:100%;text-align:left;background:var(--bg);border:1px solid var(--border);color:var(--light);padding:.8rem .9rem .8rem 2.4rem;margin-bottom:.4rem;font-size:1rem;line-height:1.5;cursor:pointer;transition:all .2s;position:relative;}
+.mcq-opt::before{content:attr(data-l);position:absolute;left:.8rem;top:50%;transform:translateY(-50%);font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--dim);font-weight:600;}
+.mcq-opt:hover:not(.lk){border-color:var(--acc);color:var(--white);}
+.mcq-opt.sel{border-color:var(--acc);background:var(--amber-bg);color:var(--white);}
+.mcq-opt.cr{border-color:var(--green);background:var(--green-bg);color:var(--white);}
+.mcq-opt.cr::after{content:'✓';position:absolute;right:.8rem;top:50%;transform:translateY(-50%);color:var(--green);}
+.mcq-opt.wr{border-color:var(--red);background:var(--red-bg);color:var(--dim);text-decoration:line-through;}
+.mcq-opt.lk{cursor:default;}
+.mcq-fb{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--green);padding:.9rem 1rem;margin-top:.7rem;font-size:.95rem;line-height:1.7;color:var(--light);}
+.mcq-fb.wrong{border-left-color:var(--red);}
+.mcq-fb strong{color:var(--white);}
+.mcq-tip{margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--border);font-size:.82rem;color:var(--amber);font-style:italic;}
+.mcq-tip::before{content:'⚡ EXAM TIP: ';font-style:normal;font-weight:600;}
+
+/* Terms */
+.terms-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--mid);margin-top:1rem;margin-bottom:.4rem;}
+.terms-wrap{display:flex;flex-wrap:wrap;gap:.4rem;}
+.term-tag{background:var(--card);border:1px solid var(--border);padding:.35rem .6rem;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--acc);cursor:pointer;transition:all .2s;}
+.term-tag:hover{border-color:var(--acc);background:var(--amber-bg);}
+.term-tag::after{content:' ⓘ';font-size:.6rem;opacity:.5;}
+.term-def{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--acc);padding:.8rem 1rem;margin-top:.5rem;font-size:.95rem;line-height:1.7;color:var(--light);display:none;}
+.term-def.vis{display:block;animation:tIn .3s ease;}
+.term-def strong{color:var(--white);}
+@keyframes tIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+
+/* Buttons */
+.btn-p{display:inline-block;background:var(--acc);color:var(--bg);border:none;padding:.7rem 1.5rem;font-family:'Source Sans 3',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;}
+.btn-p:hover{filter:brightness(1.15);transform:translateY(-1px);}.btn-p:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.btn-s{display:inline-block;background:transparent;color:var(--dim);border:1px solid var(--border);padding:.6rem 1.2rem;font-family:'Source Sans 3',sans-serif;font-size:.85rem;cursor:pointer;transition:all .2s;}
+.btn-s:hover{color:var(--white);border-color:var(--mid);}
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:1rem;}
+.end-scores{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin:1rem 0;}
+.end-sc{background:var(--card);border:1px solid var(--border);padding:.8rem .4rem;text-align:center;}
+.end-sc-num{font-family:'DM Serif Display',Georgia,serif;font-size:1.8rem;color:var(--white);}
+.end-sc-label{font-family:'JetBrains Mono',monospace;font-size:.5rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim);margin-top:.2rem;}
+
+@media(max-width:500px){.c{padding:.7rem;}}
+</style>
+</head>
+<body>
+<div id="hud-el"></div>
+<div class="c" id="app"></div>
+<script>
+var LVLS=[{name:'RECRUIT',xp:0},{name:'ANALYST',xp:40},{name:'AGENT',xp:100},{name:'OPERATIVE',xp:180},{name:'DIRECTOR',xp:280}];
+var params=new URLSearchParams(window.location.search);
+var xp=parseInt(params.get('xp'))||0,streak=parseInt(params.get('streak'))||0,bestStreak=Math.max(streak,parseInt(params.get('best'))||0),lvl=parseInt(params.get('lvl'))||0,lvlShown=lvl;
+var app=document.getElementById('app'),hudEl=document.getElementById('hud-el');
+
+var SEQ=[
+  {type:'intro'},
+  {type:'recall'},
+  {type:'case',id:'orthodox',cls:'orthodox',label:'THE PROSECUTION',title:'The USSR was to blame',emerged:'1950s — among American and Western historians during the Cold War itself',evidence:['Stalin broke his Yalta promise of free elections in Eastern Europe','Soviet expansion 1946–48: Albania, Bulgaria, East Germany, Romania, Poland, Hungary, Czechoslovakia — all forced into communism','The Berlin Blockade (1948) was a provocative, aggressive act','Both Roosevelt and Truman sought cooperation — it was Stalin who refused','The USSR was motivated by expansionist ideology, not just security']},
+  {type:'case',id:'revisionist',cls:'revisionist',label:'THE DEFENCE',title:'The USA was to blame',emerged:'1960s — among American historians disillusioned by the Vietnam War',evidence:['The Marshall Plan was driven by economic self-interest — the USA wanted to dominate European trade, not just "help"','The atomic bomb was used as a tool of intimidation against the USSR — nuclear diplomacy, not defence','American containment policy was aggressive, not defensive — it provoked Soviet fear','Stalin felt threatened and was responding to American aggression, not initiating conflict','The USA sought global economic and political dominance, not just democratic principles']},
+  {type:'case',id:'postrev',cls:'postrev',label:'THE JURY',title:'Both sides share responsibility',emerged:'1980s — with access to previously classified documents and the benefit of hindsight',evidence:['Both sides misread the other\'s defensive actions as aggressive — the security dilemma','The ideological divide made trust impossible regardless of individual leaders\' intentions','Stalin\'s expansion was partly defensive (buffer zone after 20 million dead) AND partly aggressive','American containment was partly principled (defending democracy) AND partly self-interested (economic dominance)','The Cold War was not inevitable, but once the cycle of suspicion started, both sides escalated it']},
+  {type:'verdict'},
+  {type:'sort'},
+  {type:'mcq',time:30,question:'"Who was to blame for the Cold War?" Which essay approach earns the highest marks in a CAPS exam?',options:['Present the orthodox interpretation with detailed evidence of Soviet expansion and broken promises, arguing the USSR was clearly responsible','Present the revisionist interpretation with detailed evidence of American aggression, arguing the USA provoked the conflict through containment and nuclear diplomacy','Present all three historiographical interpretations with evidence for each, then give your own supported judgement about which you find most convincing and why','Argue that the Cold War was inevitable due to the ideological divide, so the question of blame is meaningless — neither side could have prevented it'],correct:2,feedback:'Options A and B both demonstrate knowledge but only show <em>one</em> perspective. Option D avoids the question. <strong>The third approach scores highest</strong> because it shows historiographical awareness — understanding that interpretation changes over time and depends on evidence, perspective, and context. Presenting all three views, then giving your own reasoned judgement, is the highest-level thinking the exam rewards.',tip:'Structure: (1) Introduction with your line of argument. (2) Orthodox case + evidence. (3) Revisionist case + evidence. (4) Post-revisionist case + evidence. (5) Your conclusion — which is most convincing and why. This guarantees multiple perspectives, which is where top marks live.'},
+  {type:'end'}
+];
+
+var pos=0,answers={},recallDone=false,ratings={},verdictSel=null,verdictDone=false,sortOrder=null,sortDone=false,timer=null;
+var totalScreens=SEQ.length;
+
+function render(){clearInterval(timer);window.scrollTo({top:0,behavior:'auto'});var d=SEQ[pos];if(!d){pos=SEQ.length-1;d=SEQ[pos];}var m={intro:rIntro,recall:rRecall,case:rCase,verdict:rVerdict,sort:rSort,mcq:rMCQ,end:rEnd};(m[d.type]||function(){})();renderHUD();}
+function renderHUD(){var lv=LVLS[lvl],nxt=LVLS[lvl+1];var pct=nxt?Math.min(100,((xp-lv.xp)/(nxt.xp-lv.xp))*100):100;var sk=streak,skCl=sk>=5?'fire':sk>=3?'hot':'';var skTxt=sk>=3?'🔥'.repeat(Math.min(sk,5))+' '+sk:sk>0?'🔥 '+sk:'';hudEl.innerHTML='<div class="hud"><div class="hud-inner"><div style="display:flex;align-items:center;"><span class="hud-rank">'+lv.name+'</span><div class="hud-xp-wrap"><div class="hud-xp-bar" style="width:'+pct+'%"></div></div></div><div class="hud-right">'+(skTxt?'<span class="hud-streak '+skCl+'">'+skTxt+'</span>':'')+' <span class="hud-xp">'+xp+' XP</span></div></div></div>';}
+function addXP(n){xp+=n;var nl=0;for(var i=LVLS.length-1;i>=0;i--){if(xp>=LVLS[i].xp){nl=i;break;}}if(nl>lvl)lvl=nl;var el=document.createElement('div');el.className='xp-pop';el.textContent='+'+n+' XP';document.body.appendChild(el);setTimeout(function(){el.remove();},1100);if(lvl>lvlShown){lvlShown=lvl;var lv=LVLS[lvl];var o=document.createElement('div');o.className='lvl-up';o.innerHTML='<div style="text-align:center;"><div style="font-family:\'JetBrains Mono\',monospace;font-size:.6rem;letter-spacing:.3em;color:var(--dim);">CLEARANCE UPGRADED</div><div style="font-family:\'DM Serif Display\',Georgia,serif;font-size:2.5rem;color:var(--acc);margin:.3rem 0;">'+lv.name+'</div><button class="btn-p" onclick="this.closest(\'.lvl-up\').remove()">Continue</button></div>';document.body.appendChild(o);}renderHUD();}
+function dots(){var h='<div class="prog">';for(var i=0;i<totalScreens-1;i++)h+='<div class="prog-dot '+(i<pos?'done':i===pos?'active':'up')+'"></div>';return h+'</div>';}
+function nav(can){return '<div class="nav-row">'+(pos>0?'<button class="btn-s" onclick="pos--;render();">← Back</button>':'<span></span>')+'<button class="btn-p" onclick="pos++;render();" '+(can?'':'disabled')+'>Continue →</button></div>';}
+function toggleTerm(id){var el=document.getElementById(id);if(!el)return;var p=el.parentNode;if(p)p.querySelectorAll('.term-def.vis').forEach(function(e){if(e!==el)e.classList.remove('vis');});el.classList.toggle('vis');}
+
+// === INTRO ===
+function rIntro(){
+  app.innerHTML='<div style="min-height:85vh;display:flex;flex-direction:column;justify-content:center;text-align:center;padding:2rem 0;">'+
+    '<div style="font-family:\'JetBrains Mono\',monospace;font-size:.7rem;letter-spacing:.4em;text-transform:uppercase;color:var(--acc);margin-bottom:1.5rem;">THE WIRE · PART 5 OF 5</div>'+
+    '<div style="font-family:\'DM Serif Display\',Georgia,serif;font-size:clamp(2.8rem,8vw,4rem);color:var(--white);line-height:1.1;margin-bottom:1.2rem;">The Verdict</div>'+
+    '<div style="font-size:1.15rem;color:var(--mid);max-width:480px;margin:0 auto;line-height:1.8;">The alliance is dead. The world is divided into nuclear-armed blocs. Three generations of historians have argued about whose fault this is. Now it\'s your turn. You\'re the judge.</div>'+
+    '<div style="margin-top:2.5rem;"><button class="btn-p" onclick="pos++;render();" style="padding:1rem 3rem;font-size:1.1rem;">Hear the cases →</button></div>'+
+    '<div style="margin-top:1rem;font-family:\'JetBrains Mono\',monospace;font-size:.7rem;color:var(--dim);">First: can you tell the interpretations apart?</div></div>';
+}
+
+// === RECALL ===
+var RECALL_ITEMS=[
+  {desc:'Emerged in the 1950s. Blames the USSR. Argues Stalin broke promises and pursued expansion.',answer:'Orthodox'},
+  {desc:'Emerged in the 1960s. Blames the USA. Argues containment and the bomb were aggressive provocations.',answer:'Revisionist'},
+  {desc:'Emerged in the 1980s. Blames both sides. Argues mutual misunderstanding and the security dilemma.',answer:'Post-revisionist'}
+];
+var recIdx=0,recAnswers=[];
+function rRecall(){
+  if(recIdx>=RECALL_ITEMS.length){recallDone=true;}
+  if(recallDone){
+    var c=recAnswers.filter(function(a){return a.ok;}).length;
+    var h=dots()+'<div class="card"><div class="sec-label">RECALL COMPLETE</div><p style="font-size:1.05rem;"><strong>'+c+'/'+RECALL_ITEMS.length+'</strong> correct.</p></div>';
+    h+='<div class="card"><div class="sec-label">QUICK RECAP FROM PART 4</div><p style="font-size:1rem;margin-bottom:.5rem;"><strong>Truman Doctrine</strong> — Military and financial support to countries threatened by communism.</p><p style="font-size:1rem;margin-bottom:.5rem;"><strong>Marshall Plan</strong> — $13 billion to rebuild Europe. Offered to the USSR (Stalin refused).</p><p style="font-size:1rem;"><strong>NATO and Warsaw Pact</strong> — Two nuclear-armed military blocs facing each other.</p></div>';
+    h+=nav(true);app.innerHTML=h;return;
+  }
+  var q=RECALL_ITEMS[recIdx],a=recAnswers[recIdx];
+  var opts=['Orthodox','Revisionist','Post-revisionist'];
+  var h=dots()+'<div style="padding-top:.5rem;"><div style="font-family:\'JetBrains Mono\',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--acc);text-align:center;margin-bottom:.3rem;">WHICH INTERPRETATION? · '+(recIdx+1)+'/'+RECALL_ITEMS.length+'</div>';
+  h+='<div style="font-family:\'DM Serif Display\',Georgia,serif;font-size:clamp(1.1rem,3vw,1.4rem);color:var(--white);text-align:center;padding:1.5rem .5rem;line-height:1.5;">'+q.desc+'</div>';
+  if(!a){
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.4rem;">';
+    opts.forEach(function(o){h+='<button style="padding:1rem .4rem;font-family:\'JetBrains Mono\',monospace;font-size:.75rem;font-weight:600;border:1px solid var(--border);background:var(--card);color:var(--mid);cursor:pointer;text-align:center;" onmouseover="this.style.borderColor=\'var(--acc)\';this.style.color=\'var(--acc)\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.color=\'var(--mid)\'" onclick="recAnswer(\''+o+'\')">'+o+'</button>';});
+    h+='</div>';
+  } else {
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.4rem;">';
+    opts.forEach(function(o){var cl=o===q.answer?'border-color:var(--green);background:var(--green-bg);color:var(--green);':(o===a.pick&&!a.ok?'border-color:var(--red);background:var(--red-bg);color:var(--red);':'opacity:.3;');h+='<button style="padding:1rem .4rem;font-family:\'JetBrains Mono\',monospace;font-size:.75rem;font-weight:600;border:1px solid var(--border);background:var(--card);color:var(--mid);pointer-events:none;text-align:center;'+cl+'">'+o+'</button>';});
+    h+='</div>';
+    h+='<div style="text-align:center;margin-top:.8rem;"><button class="btn-p" onclick="recIdx++;render();" style="padding:.6rem 1.5rem;">Next →</button></div>';
+  }
+  h+='</div>';app.innerHTML=h;
+}
+function recAnswer(pick){var q=RECALL_ITEMS[recIdx],ok=pick===q.answer;recAnswers[recIdx]={pick:pick,ok:ok};if(ok){streak++;if(streak>bestStreak)bestStreak=streak;addXP(5);}else{streak=0;}render();}
+
+// === CASE ===
+function rCase(){
+  var d=SEQ[pos],rated=ratings[d.id];
+  var h=dots()+'<div class="case-card '+d.cls+'"><div class="case-label">'+d.label+'</div><div class="case-title">'+d.title+'</div>';
+  h+='<div style="font-size:.85rem;color:var(--dim);margin-bottom:.6rem;font-style:italic;">'+d.emerged+'</div>';
+  h+='<div class="case-evidence">';
+  d.evidence.forEach(function(e){h+='<div class="case-ev">'+e+'</div>';});
+  h+='</div>';
+  h+='<div class="rate-row"><span class="rate-label">How convincing? </span>';
+  for(var i=1;i<=5;i++){h+='<button class="rate-btn'+(rated===i?' active':'')+'" onclick="rateCase(\''+d.id+'\','+i+')">'+i+'</button>';}
+  h+='</div>';
+  h+='</div>';
+  h+=nav(!!rated);
+  app.innerHTML=h;
+}
+function rateCase(id,val){ratings[id]=val;addXP(5);render();}
+
+// === VERDICT ===
+function rVerdict(){
+  var h=dots()+'<div class="card"><div style="font-family:\'DM Serif Display\',Georgia,serif;font-size:1.3rem;color:var(--white);margin-bottom:.8rem;">Deliver your verdict.</div>';
+  h+='<div style="font-size:1rem;color:var(--mid);margin-bottom:1rem;">You\'ve heard all three cases. Which interpretation do you find most convincing?</div>';
+  var opts=[
+    {cls:'orthodox',label:'ORTHODOX',text:'The USSR was primarily to blame — Soviet expansion and broken promises drove the conflict.'},
+    {cls:'revisionist',label:'REVISIONIST',text:'The USA was primarily to blame — containment, the bomb, and economic imperialism provoked Soviet fear.'},
+    {cls:'postrev',label:'POST-REVISIONIST',text:'Both sides share responsibility — mutual fear, misunderstanding, and the security dilemma made the Cold War a shared failure.'}
+  ];
+  opts.forEach(function(o,i){
+    h+='<button class="verdict-opt '+o.cls+(verdictSel===i?' sel':'')+'" onclick="verdictSel='+i+';render();"><div class="verdict-opt-label">'+o.label+'</div><div class="verdict-opt-text">'+o.text+'</div></button>';
+  });
+  if(!verdictDone){
+    h+='<div style="margin-top:.8rem;"><button class="btn-p" onclick="submitVerdict()" '+(verdictSel===null?'disabled':'')+'>Lock in your verdict</button></div>';
+  } else {
+    h+='<div class="card" style="margin-top:.8rem;border-left:3px solid var(--acc);"><p style="font-size:1rem;">There is no "right" answer. The exam cares about <strong>how well you argue your position</strong>, not which position you take. What matters is: evidence, multiple perspectives, and a clear line of argument.</p>';
+    h+='<p style="font-size:1rem;margin-top:.5rem;">Your ratings — Orthodox: '+(ratings.orthodox||'?')+'/5, Revisionist: '+(ratings.revisionist||'?')+'/5, Post-revisionist: '+(ratings.postrev||'?')+'/5 — reveal your interpretive framework. <strong>Knowing where you stand is itself a History skill.</strong></p></div>';
+  }
+  h+='</div>'+nav(verdictDone);app.innerHTML=h;
+}
+function submitVerdict(){verdictDone=true;addXP(15);render();}
+
+// === SORT ===
+function rSort(){
+  var items=['Introduction — state your line of argument clearly','Body 1: The case that the USSR was to blame (orthodox view + evidence)','Body 2: The case that the USA was to blame (revisionist view + evidence)','Body 3: The case that both share responsibility (post-revisionist + evidence)','Conclusion — which interpretation is most convincing and why'];
+  if(!sortOrder){sortOrder=[0,1,2,3,4];for(var i=sortOrder.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=sortOrder[i];sortOrder[i]=sortOrder[j];sortOrder[j]=t;}}
+  var h=dots()+'<div class="sec-label">BUILD YOUR ESSAY</div>';
+  h+='<div style="font-family:\'DM Serif Display\',Georgia,serif;font-size:1.1rem;color:var(--white);margin-bottom:.8rem;">Drag these into the correct order for a top-scoring "Who was to blame?" essay.</div>';
+  sortOrder.forEach(function(idx,p){
+    h+='<div class="sort-item"><span class="sort-handle">☰</span><span class="sort-text">'+items[idx]+'</span>';
+    if(!sortDone)h+='<div class="sort-arrows"><button class="sort-arr" onclick="sortMove('+p+',-1)">▲</button><button class="sort-arr" onclick="sortMove('+p+',1)">▼</button></div>';
+    h+='</div>';
+  });
+  if(!sortDone)h+='<div style="margin-top:.8rem;"><button class="btn-p" onclick="sortSubmit()">Lock in your order</button></div>';
+  if(sortDone){
+    var allCorrect=sortOrder.every(function(v,i){return v===i;});
+    h+='<div class="card" style="margin-top:.8rem;border-left:3px solid '+(allCorrect?'var(--green)':'var(--acc)')+';">';
+    h+='<p style="font-size:1rem;">'+(allCorrect?'Perfect structure.':'The strongest order is: Introduction → Orthodox → Revisionist → Post-revisionist → Your conclusion.')+' This structure guarantees you engage with <strong>multiple perspectives</strong> — which is where the top marks are.</p></div>';
+  }
+  h+=nav(sortDone);app.innerHTML=h;
+}
+function sortMove(p,dir){var np=p+dir;if(np<0||np>=sortOrder.length)return;var t=sortOrder[p];sortOrder[p]=sortOrder[np];sortOrder[np]=t;render();}
+function sortSubmit(){sortDone=true;var allCorrect=sortOrder.every(function(v,i){return v===i;});addXP(allCorrect?20:10);if(allCorrect){streak++;if(streak>bestStreak)bestStreak=streak;}render();}
+
+// === MCQ ===
+function rMCQ(){
+  var d=SEQ[pos],a=answers[pos];
+  var h=dots()+'<div class="card"><div class="mcq-badge">EVALUATE · '+d.time+'S</div>';
+  if(d.time&&!a)h+='<div class="mcq-timer"><div class="mcq-timer-bg"><div class="mcq-timer-bar ok" id="mBar" style="width:100%"></div></div><span class="mcq-timer-num" id="mNum">'+d.time+'s</span></div>';
+  h+='<div class="mcq-q">'+d.question+'</div>';var LL=['A','B','C','D'];
+  if(!a){d.options.forEach(function(o,i){var sel=answers['tmp_'+pos]===i?' sel':'';h+='<button class="mcq-opt'+sel+'" data-l="'+LL[i]+'" onclick="mcqSel('+i+')">'+o+'</button>';});h+='<div style="margin-top:.6rem;"><button class="btn-p" onclick="mcqSub()" '+(answers['tmp_'+pos]===undefined?'disabled':'')+'>Submit</button></div>';}
+  else{d.options.forEach(function(o,i){var cl='mcq-opt lk';if(i===d.correct)cl+=' cr';else if(a.sel===i&&!a.ok)cl+=' wr';h+='<button class="'+cl+'" data-l="'+LL[i]+'">'+o+'</button>';});h+='<div class="mcq-fb'+(a.ok?'':' wrong')+'">'+(a.timedOut?'⏱ TIME\'S UP. ':'')+d.feedback+'</div>';if(d.tip)h+='<div class="mcq-tip">'+d.tip+'</div>';}
+  h+='</div>'+nav(!!a);app.innerHTML=h;
+  if(d.time&&!a){var tl=d.time;timer=setInterval(function(){tl--;var b=document.getElementById('mBar'),n=document.getElementById('mNum');if(b&&n){var p=(tl/d.time)*100;b.style.width=p+'%';b.className='mcq-timer-bar'+(p<25?' crit':p<50?' warn':' ok');n.textContent=tl+'s';}if(tl<=0){clearInterval(timer);answers[pos]={sel:-1,ok:false,timedOut:true};streak=0;render();}},1000);}
+}
+function mcqSel(i){answers['tmp_'+pos]=i;render();}
+function mcqSub(){var sel=answers['tmp_'+pos];if(sel===undefined)return;clearInterval(timer);var d=SEQ[pos],ok=sel===d.correct;answers[pos]={sel:sel,ok:ok,timedOut:false};delete answers['tmp_'+pos];if(ok){streak++;if(streak>bestStreak)bestStreak=streak;addXP(25);}else{streak=0;}render();}
+
+// === END ===
+function rEnd(){
+  var correct=0,total=0;SEQ.forEach(function(d,i){if(d.type==='mcq'&&answers[i]){total++;if(answers[i].ok)correct++;}});
+  var pct=total>0?Math.round(correct/total*100):0;var lv=LVLS[lvl];
+  var h='<div style="text-align:center;padding-top:2rem;"><div style="font-family:\'JetBrains Mono\',monospace;font-size:.55rem;letter-spacing:.3em;color:var(--acc);text-transform:uppercase;">Cold War Origins · Complete</div><div style="font-family:\'DM Serif Display\',Georgia,serif;font-size:2.2rem;color:var(--white);margin:.3rem 0;">'+lv.name+'</div><div style="font-size:.85rem;color:var(--mid);">'+xp+' XP · Best streak: '+bestStreak+'🔥</div></div>';
+  h+='<div class="end-scores"><div class="end-sc"><div class="end-sc-num">'+correct+'<span style="font-size:1rem;color:var(--dim);">/'+total+'</span></div><div class="end-sc-label">Correct</div></div><div class="end-sc"><div class="end-sc-num">'+pct+'<span style="font-size:1rem;color:var(--dim);">%</span></div><div class="end-sc-label">Accuracy</div></div><div class="end-sc"><div class="end-sc-num" style="font-size:1.2rem;">'+(pct>=75?'Strong':pct>=50?'Building':'Developing')+'</div><div class="end-sc-label">Level</div></div></div>';
+
+  h+='<div style="text-align:left;"><div class="sec-label">WHAT YOU NEED TO KNOW — ALL 5 PARTS</div>';
+  h+='<div class="card"><p style="font-size:.95rem;"><strong>Part 1:</strong> The Cold War (1947–1991) — an ideological rivalry fought through proxy wars, propaganda, espionage, and arms races. Never direct conflict — nuclear weapons prevented it.</p></div>';
+  h+='<div class="card"><p style="font-size:.95rem;"><strong>Part 2:</strong> The wartime alliance was a marriage of convenience. Capitalism vs communism — incompatible systems. Yalta agreements. 20 million Soviet dead shaped everything.</p></div>';
+  h+='<div class="card"><p style="font-size:.95rem;"><strong>Part 3:</strong> Potsdam — new leaders, the bomb, broken promises, reparations. Soviet expansion. Churchill\'s Iron Curtain speech vs Stalin\'s Pravda response. Same facts, opposite framing.</p></div>';
+  h+='<div class="card"><p style="font-size:.95rem;"><strong>Part 4:</strong> Containment — Truman Doctrine (the stick) + Marshall Plan (the carrot). Czechoslovakia blocked from accepting aid. NATO and Warsaw Pact divided the world.</p></div>';
+  h+='<div class="card"><p style="font-size:.95rem;"><strong>Part 5:</strong> Three interpretations — Orthodox (USSR to blame), Revisionist (USA to blame), Post-revisionist (both responsible). The exam rewards engaging with all three.</p></div></div>';
+
+  h+='<div style="text-align:center;margin-top:1rem;">';
+  if(pct>=60||total===0){
+    h+='<button class="btn-p" onclick="showTeaser()" style="padding:.9rem 2.5rem;">Finish Cold War Origins →</button><br>';
+    h+='<button class="btn-s" onclick="restart()" style="margin-top:.8rem;">Try again for a better score</button>';
+  } else {
+    h+='<div class="card" style="text-align:center;border-left:3px solid var(--red);margin-bottom:1rem;"><div style="font-family:\'JetBrains Mono\',monospace;font-size:.65rem;color:var(--red);margin-bottom:.3rem;">CLEARANCE DENIED</div><div style="font-size:.95rem;">You need 60% to complete. Review and try again.</div></div>';
+    h+='<button class="btn-p" onclick="restart()">Retry Part 5 →</button>';
+  }
+  h+='</div>';app.innerHTML=h;
+}
+
+function showTeaser(){
+  var o=document.createElement('div');
+  o.style.cssText='position:fixed;inset:0;background:rgba(20,18,12,.97);z-index:300;display:flex;align-items:center;justify-content:center;animation:fadeIn .4s ease;overflow-y:auto;';
+  o.innerHTML='<div style="max-width:520px;padding:2rem;text-align:center;">'+
+    '<div style="font-family:\'JetBrains Mono\',monospace;font-size:.55rem;letter-spacing:.3em;color:var(--acc);text-transform:uppercase;margin-bottom:.8rem;">COLD WAR ORIGINS · COMPLETE</div>'+
+    '<div style="font-family:\'DM Serif Display\',Georgia,serif;font-size:clamp(1.6rem,5vw,2.4rem);color:var(--white);line-height:1.3;font-style:italic;margin-bottom:1rem;">You understand the origins.<br>Now see what happened when the Cold War nearly turned hot.</div>'+
+    '<div style="font-size:1rem;color:var(--light);line-height:1.7;margin-bottom:.5rem;">Next up: <strong style="color:var(--white);">The Berlin Crises</strong> — blockade, airlift, and the Wall. A city divided becomes the symbol of a world divided.</div>'+
+    '<div style="font-size:.95rem;color:var(--mid);line-height:1.6;margin-bottom:1.5rem;">Then: <strong style="color:var(--light);">The Cuban Missile Crisis</strong> — thirteen days when the world came closest to nuclear annihilation.</div>'+
+    '<button class="btn-s" onclick="this.closest(\'div[style]\').remove();restart();">Retry Part 5</button></div>';
+  document.body.appendChild(o);
+}
+
+function restart(){xp=parseInt(params.get('xp'))||0;streak=0;bestStreak=0;lvl=parseInt(params.get('lvl'))||0;lvlShown=lvl;pos=0;answers={};recIdx=0;recAnswers=[];recallDone=false;ratings={};verdictSel=null;verdictDone=false;sortOrder=null;sortDone=false;render();}
+
+render();
+</script>
+</body>
+</html>
